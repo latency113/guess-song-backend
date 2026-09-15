@@ -1,6 +1,8 @@
 import { Elysia, t } from "elysia";
-import { db, GameScoreRecord } from "../db";
-import { getSongsForCategory, SongItem } from "../services/itunes";
+import { db } from "../db";
+import type { GameScoreRecord } from "../db";
+import type { SongItem } from "../services/itunes";
+import { getSongsForCategory } from "../services/itunes";
 
 export interface GameRoundQuestion {
   roundIndex: number;
