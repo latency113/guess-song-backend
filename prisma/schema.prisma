@@ -1,0 +1,63 @@
+// Prisma schema for Music Intro Guessing Game
+// Supports PostgreSQL (Neon DB Serverless Postgres)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum CategoryType {
+  THAI_HITS
+  THAI_INDIE_ROCK
+  GLOBAL_POP
+  GLOBAL_CLASSIC
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  gameRecords  GameRecord[]
+
+  @@index([username])
+}
+
+model Song {
+  id          String       @id @default(cuid())
+  title       String
+  artist      String
+  category    CategoryType
+  previewUrl  String       // 30s high-quality preview stream URL
+  artworkUrl  String?
+  releaseYear Int?
+  popularity  Int?         @default(0)
+  createdAt   DateTime     @default(now())
+
+  @@index([category])
+}
+
+model GameRecord {
+  id           String        @id @default(cuid())
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guestName    String?
+  category     CategoryType
+  score        Int
+  correctCount Int
+  totalRounds  Int           @default(10)
+  timeTakenSec Float
+  createdAt    DateTime      @default(now())
+
+  @@index([userId])
+  @@index([category, score(sort: Desc)])
+  @@index([score(sort: Desc)])
+  @@index([createdAt])
+}
