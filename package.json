@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "prisma generate",
+    "seed:songs": "bun src/scripts/seed-songs.ts",
     "start": "bun src/index.ts"
   },
   "devDependencies": {

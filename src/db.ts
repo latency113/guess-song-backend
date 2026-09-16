@@ -224,5 +224,107 @@ export const db = {
         totalUsers: 0
       };
     }
+  },
+
+  async saveSongs(
+    songs: Array<{
+      title: string;
+      artist: string;
+      category: CategoryType;
+      previewUrl: string;
+      artworkUrl?: string;
+      releaseYear?: number;
+      popularity?: number;
+    }>
+  ): Promise<number> {
+    if (!songs || songs.length === 0) return 0;
+
+    try {
+      // Filter out duplicate songs within the incoming batch
+      const uniqueIncoming = new Map<string, (typeof songs)[0]>();
+      for (const s of songs) {
+        if (!s.previewUrl || !s.title || !s.artist) continue;
+        const key = `${s.title.toLowerCase().trim()}:::${s.artist.toLowerCase().trim()}`;
+        if (!uniqueIncoming.has(key)) {
+          uniqueIncoming.set(key, s);
+        }
+      }
+
+      const candidateList = Array.from(uniqueIncoming.values());
+      if (candidateList.length === 0) return 0;
+
+      // Find existing songs by previewUrl
+      const existingSongs = await prisma.song.findMany({
+        where: {
+          previewUrl: { in: candidateList.map((s) => s.previewUrl) }
+        },
+        select: { previewUrl: true }
+      });
+      const existingSet = new Set(existingSongs.map((s) => s.previewUrl));
+
+      const toInsert = candidateList
+        .filter((s) => !existingSet.has(s.previewUrl))
+        .map((s) => ({
+          title: s.title.trim(),
+          artist: s.artist.trim(),
+          category: s.category,
+          previewUrl: s.previewUrl,
+          artworkUrl: s.artworkUrl || null,
+          releaseYear: s.releaseYear || null,
+          popularity: s.popularity || 0
+        }));
+
+      if (toInsert.length === 0) return 0;
+
+      const result = await prisma.song.createMany({
+        data: toInsert
+      });
+      return result.count;
+    } catch (e) {
+      console.error("saveSongs error:", e);
+      return 0;
+    }
+  },
+
+  async getRandomSongs(category: CategoryType, count: number = 30): Promise<any[]> {
+    try {
+      const songs = await prisma.$queryRaw<any[]>`
+        SELECT id, title, artist, category, "previewUrl", "artworkUrl", "releaseYear", popularity
+        FROM "Song"
+        WHERE category = ${category}::"CategoryType"
+        ORDER BY RANDOM()
+        LIMIT ${count}
+      `;
+      return songs;
+    } catch (e) {
+      console.error("getRandomSongs raw query error, falling back:", e);
+      try {
+        const allCategorySongs = await prisma.song.findMany({
+          where: { category },
+          take: Math.max(count * 3, 60)
+        });
+        return allCategorySongs.sort(() => 0.5 - Math.random()).slice(0, count);
+      } catch (err2) {
+        console.error("getRandomSongs fallback error:", err2);
+        return [];
+      }
+    }
+  },
+
+  async getSongStats(): Promise<Record<string, number>> {
+    try {
+      const counts = await prisma.song.groupBy({
+        by: ["category"],
+        _count: { id: true }
+      });
+      const result: Record<string, number> = {};
+      for (const c of counts) {
+        result[c.category] = c._count.id;
+      }
+      return result;
+    } catch (e) {
+      console.error("getSongStats error:", e);
+      return {};
+    }
   }
 };

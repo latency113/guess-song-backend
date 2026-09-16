@@ -71,9 +71,22 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
       const selectedSongs = shuffled.slice(0, Math.min(roundsCount, songs.length));
 
       const rounds: GameRoundQuestion[] = selectedSongs.map((correctSong, index) => {
-        // Pick 3 distractors from the rest of the songs
-        const otherSongs = songs.filter((s) => s.id !== correctSong.id);
-        const distractors = [...otherSongs].sort(() => 0.5 - Math.random()).slice(0, 3);
+        // Pick 3 distractors from the rest of the songs with distinct titles
+        const otherSongs = songs.filter(
+          (s) => s.id !== correctSong.id && s.title.toLowerCase().trim() !== correctSong.title.toLowerCase().trim()
+        );
+        const shuffledOthers = [...otherSongs].sort(() => 0.5 - Math.random());
+        const distractors: typeof songs = [];
+        const seenTitles = new Set<string>([correctSong.title.toLowerCase().trim()]);
+
+        for (const candidate of shuffledOthers) {
+          const normTitle = candidate.title.toLowerCase().trim();
+          if (!seenTitles.has(normTitle)) {
+            seenTitles.add(normTitle);
+            distractors.push(candidate);
+            if (distractors.length >= 3) break;
+          }
+        }
 
         // Combine and shuffle choices
         const choices = [
