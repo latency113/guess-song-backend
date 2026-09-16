@@ -5,6 +5,7 @@ import {
   fetchSongsByQuery,
   type SongItem 
 } from "../services/itunes";
+import { isGenuineThaiSong } from "../utils/thaiSongFilter";
 
 async function seedCategory(category: SongItem["category"]) {
   console.log(`\n🎵 [Seeding] Category: ${category}...`);
@@ -13,18 +14,25 @@ async function seedCategory(category: SongItem["category"]) {
   const songs: SongItem[] = [];
   const seenUrls = new Set<string>();
 
+  // Helper to safely add authentic songs
+  const addSong = (s: SongItem) => {
+    if (seenUrls.has(s.previewUrl)) return;
+    if (category.startsWith("THAI") && !isGenuineThaiSong(s.title, s.artist)) {
+      return;
+    }
+    seenUrls.add(s.previewUrl);
+    songs.push(s);
+  };
+
   // 1. Fetch Apple RSS Top 100 if applicable
   if (category === "THAI_HITS" || category === "GLOBAL_POP") {
     try {
       console.log(`  📡 Fetching Apple Music Top 100 RSS (${country.toUpperCase()})...`);
       const rssSongs = await fetchAppleTopSongsRSS(category, country, 100);
       for (const s of rssSongs) {
-        if (!seenUrls.has(s.previewUrl)) {
-          seenUrls.add(s.previewUrl);
-          songs.push(s);
-        }
+        addSong(s);
       }
-      console.log(`     -> Got ${rssSongs.length} tracks from Apple Top Charts.`);
+      console.log(`     -> Got ${songs.length} valid tracks from Apple Top Charts.`);
     } catch (e) {
       console.error(`     ❌ Failed to fetch RSS for ${category}:`, e);
     }
@@ -41,10 +49,7 @@ async function seedCategory(category: SongItem["category"]) {
         try {
           const results = await fetchSongsByQuery(q, category, country, 25);
           for (const s of results) {
-            if (!seenUrls.has(s.previewUrl)) {
-              seenUrls.add(s.previewUrl);
-              songs.push(s);
-            }
+            addSong(s);
           }
         } catch {
           // ignore query error

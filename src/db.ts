@@ -1,4 +1,5 @@
 import { PrismaClient, CategoryType } from "@prisma/client";
+import { isGenuineThaiSong } from "./utils/thaiSongFilter";
 
 const prisma = new PrismaClient();
 
@@ -250,7 +251,13 @@ export const db = {
         }
       }
 
-      const candidateList = Array.from(uniqueIncoming.values());
+      const candidateList = Array.from(uniqueIncoming.values()).filter((s) => {
+        // Enforce authentic Thai songs in Thai categories
+        if (s.category === "THAI_HITS" || s.category === "THAI_INDIE_ROCK") {
+          return isGenuineThaiSong(s.title, s.artist);
+        }
+        return true;
+      });
       if (candidateList.length === 0) return 0;
 
       // Find existing songs by previewUrl

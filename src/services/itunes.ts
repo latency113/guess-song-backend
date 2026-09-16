@@ -1,5 +1,6 @@
 import { db } from "../db";
 import type { CategoryType } from "@prisma/client";
+import { isGenuineThaiSong } from "../utils/thaiSongFilter";
 
 export interface SongItem {
   id: string;
@@ -18,22 +19,22 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Three Man Down", "Tilly Birds", "Bowkylion", "NONT TANONT", "Jeff Satur", 
     "Cocktail", "Tattoo Colour", "Ink Waruntorn", "Billkin", "PP Krit", 
     "Violette Wautier", "URBOYTJ", "F.HERO", "MILLI", "THE TOYS",
-    "Paper Planes", "Fellow Fellow", "Serious Bacon", "Proxie", "4EVE",
+    "วง Paper Planes", "Fellow Fellow", "Serious Bacon", "Proxie", "4EVE",
     "ATLAS", "BUS because of you i shine", "Pixxie", "NuNew", "Zee Pruk",
-    "Ally", "Sarah Salola", "Safeplanet", "Dept", "Mirrr",
-    "Loserpop", "PURPEECH", "No One Else", "MEAN", "Whal & Dolph",
-    "Landokmai", "Television off", "GMM Grammy", "What The Duck", "Smallroom",
-    "Spicydisc", "BOXX MUSIC", "T-Pop"
+    "ALLY เพลง", "Sarah Salola", "Safeplanet", "วง Dept", "Mirrr",
+    "Loserpop", "PURPEECH", "วง No One Else", "วง MEAN", "Whal & Dolph",
+    "Landokmai", "Television off", "GMM Grammy", "What The Duck Music", "Smallroom thai",
+    "Spicydisc thai", "BOXX MUSIC", "เพลงไทยฮิต", "นนท์ ธนนท์", "เบิร์ด ธงไชย"
   ],
   THAI_INDIE_ROCK: [
     "Bodyslam", "Big Ass", "Slot Machine", "Potato", "Labanoon", 
-    "Paradox", "Silly Fools", "Loso", "Scrubb", "Safeplanet", 
+    "วง Paradox", "Silly Fools", "Loso", "Scrubb", "Safeplanet", 
     "Anatomy Rabbit", "Polycat", "Department of Architecture", "Moderndog", "Palmy",
-    "Clash", "Zeal", "RETROSPECT", "Sweet Mullet", "TaitosmitH",
+    "วง Clash", "Zeal", "RETROSPECT", "Sweet Mullet", "TaitosmitH",
     "Bomb at Track", "The Yers", "Desktop Error", "Solitude Is Bliss", "Moving and Cut",
-    "Yented", "Blackhead", "Fly", "Sek Loso", "Rock Rider",
-    "Ebola", "Lomosonic", "Playground", "Musketeers", "25hours",
-    "Genie records", "Bakery Music", "Smallroom rock"
+    "Yented", "Blackhead", "วง ฟลาย", "Sek Loso", "Rock Rider",
+    "Ebola", "Lomosonic", "วง Playground", "Musketeers", "25hours",
+    "genie records thai", "Bakery Music thai", "Smallroom rock"
   ],
   GLOBAL_POP: [
     "Taylor Swift", "Ed Sheeran", "Bruno Mars", "The Weeknd", "Dua Lipa", 
@@ -102,6 +103,11 @@ export async function fetchAppleTopSongsRSS(
 
         if (!previewUrl || !title || !artist) continue;
 
+        // Strictly verify Thai categories only contain authentic Thai songs
+        if (category.startsWith("THAI") && !isGenuineThaiSong(title, artist)) {
+          continue;
+        }
+
         // Skip karaoke / tribute
         const lowerTitle = title.toLowerCase();
         const lowerArtist = artist.toLowerCase();
@@ -169,6 +175,11 @@ export async function fetchSongsByQuery(
     const songs: SongItem[] = [];
     for (const item of data.results) {
       if (item.previewUrl && item.trackName && item.artistName) {
+        // Strictly verify Thai categories only contain authentic Thai songs
+        if (category.startsWith("THAI") && !isGenuineThaiSong(item.trackName, item.artistName)) {
+          continue;
+        }
+
         const lowerTitle = item.trackName.toLowerCase();
         const lowerArtist = item.artistName.toLowerCase();
 
