@@ -318,6 +318,30 @@ export const db = {
     }
   },
 
+  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 10): Promise<any[]> {
+    try {
+      const songs = await prisma.$queryRaw<any[]>`
+        WITH eligible_artists AS (
+          SELECT artist
+          FROM "Song"
+          WHERE category = ${category}::"CategoryType"
+          GROUP BY artist
+          HAVING COUNT(DISTINCT title) >= 4
+          ORDER BY RANDOM()
+          LIMIT ${artistsCount}
+        )
+        SELECT s.id, s.title, s.artist, s.category, s."previewUrl", s."artworkUrl", s."releaseYear", s."youtubeId"
+        FROM "Song" s
+        JOIN eligible_artists ea ON s.artist = ea.artist
+        WHERE s.category = ${category}::"CategoryType"
+      `;
+      return songs;
+    } catch (e) {
+      console.error("getArtistGroupedSongsForGame error:", e);
+      return [];
+    }
+  },
+
   async getSongStats(): Promise<Record<string, number>> {
     try {
       const counts = await prisma.song.groupBy({
