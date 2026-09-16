@@ -242,7 +242,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
   .post(
     "/finish",
     async ({ body, headers, jwt }: any) => {
-      const { category, score, correctCount, totalRounds, timeTakenSec, guestName } = body;
+      const { category, mode = "disguised", score, correctCount, totalRounds, timeTakenSec, guestName } = body;
 
       let userId: string | undefined;
       const authHeader = headers["authorization"];
@@ -262,14 +262,15 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
         userId,
         guestName: userId ? undefined : (guestName?.trim() || "Guest Player"),
         category: category as GameScoreRecord["category"],
+        mode,
         score,
         correctCount,
         totalRounds,
         timeTakenSec
       });
 
-      // Get current rank for this record
-      const leaderboard = await db.getLeaderboard(category, 100);
+      // Get current rank for this record in this category and mode
+      const leaderboard = await db.getLeaderboard(category, 100, mode);
       const rank = leaderboard.findIndex((r) => r.id === savedRecord.id) + 1;
 
       return {
@@ -281,6 +282,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
     {
       body: t.Object({
         category: t.String(),
+        mode: t.Optional(t.String()),
         score: t.Number(),
         correctCount: t.Number(),
         totalRounds: t.Number(),

@@ -51,6 +51,7 @@ model GameRecord {
   user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   guestName    String?
   category     CategoryType
+  mode         String?       @default("disguised") // "disguised" | "instrumental" | "normal"
   score        Int
   correctCount Int
   totalRounds  Int           @default(10)
@@ -59,6 +60,8 @@ model GameRecord {
 
   @@index([userId])
   @@index([category, score(sort: Desc)])
+  @@index([mode, score(sort: Desc)])
+  @@index([category, mode, score(sort: Desc)])
   @@index([score(sort: Desc)])
   @@index([createdAt])
 }

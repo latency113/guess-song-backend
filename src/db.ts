@@ -20,6 +20,7 @@ export interface GameScoreRecord {
   displayName?: string | null;
   guestName?: string | null;
   category: "THAI_HITS" | "THAI_INDIE_ROCK" | "GLOBAL_POP" | "GLOBAL_CLASSIC";
+  mode?: string | null;
   score: number;
   correctCount: number;
   totalRounds: number;
@@ -78,6 +79,7 @@ export const db = {
     userId?: string;
     guestName?: string;
     category: GameScoreRecord["category"];
+    mode?: string;
     score: number;
     correctCount: number;
     totalRounds: number;
@@ -93,6 +95,7 @@ export const db = {
         userId: record.userId || null,
         guestName: record.userId ? null : (record.guestName || "Player"),
         category: record.category as CategoryType,
+        mode: record.mode || "disguised",
         score: record.score,
         correctCount: record.correctCount,
         totalRounds: record.totalRounds,
@@ -110,6 +113,7 @@ export const db = {
       displayName: saved.user?.displayName || saved.guestName || "Player",
       guestName: saved.guestName,
       category: saved.category as GameScoreRecord["category"],
+      mode: saved.mode || "disguised",
       score: saved.score,
       correctCount: saved.correctCount,
       totalRounds: saved.totalRounds,
@@ -118,9 +122,16 @@ export const db = {
     };
   },
 
-  async getLeaderboard(category?: string, limit: number = 25): Promise<GameScoreRecord[]> {
+  async getLeaderboard(category?: string, limit: number = 25, mode?: string): Promise<GameScoreRecord[]> {
     try {
-      const whereClause = category && category !== "ALL" ? { category: category as CategoryType } : {};
+      const whereClause: any = {};
+      if (category && category !== "ALL") {
+        whereClause.category = category as CategoryType;
+      }
+      if (mode && mode !== "ALL") {
+        whereClause.mode = mode;
+      }
+
       const records = await prisma.gameRecord.findMany({
         where: whereClause,
         orderBy: [
@@ -138,7 +149,7 @@ export const db = {
       const deduplicated: GameScoreRecord[] = [];
 
       for (const r of records) {
-        // When viewing a specific category, group by player. When ALL, group by player too.
+        // Group by player (and mode if viewing ALL modes, or by player)
         const playerKey = r.userId
           ? `user_${r.userId}`
           : `guest_${(r.guestName || "Player").trim().toLowerCase()}`;
@@ -152,6 +163,7 @@ export const db = {
             displayName: r.user?.displayName || r.guestName || "Player",
             guestName: r.guestName,
             category: r.category as GameScoreRecord["category"],
+            mode: r.mode || "disguised",
             score: r.score,
             correctCount: r.correctCount,
             totalRounds: r.totalRounds,
