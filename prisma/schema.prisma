@@ -39,6 +39,7 @@ model Song {
   artworkUrl  String?
   releaseYear Int?
   popularity  Int?         @default(0)
+  youtubeId   String?
   createdAt   DateTime     @default(now())
 
   @@index([category])

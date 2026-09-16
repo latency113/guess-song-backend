@@ -9,6 +9,7 @@ export interface SongItem {
   previewUrl: string;
   artworkUrl?: string;
   releaseYear?: number;
+  youtubeId?: string;
 }
 
 // Built-in curated search queries for diverse & popular songs (Artists, Labels, Eras)
@@ -258,7 +259,8 @@ export async function getSongsForCategory(category: SongItem["category"]): Promi
       category: s.category as SongItem["category"],
       previewUrl: s.previewUrl,
       artworkUrl: s.artworkUrl || undefined,
-      releaseYear: s.releaseYear || undefined
+      releaseYear: s.releaseYear || undefined,
+      youtubeId: s.youtubeId || undefined
     }));
 
     // If DB has fewer than 50 songs, fetch fresh batch in background to expand the bank

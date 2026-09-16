@@ -3,10 +3,12 @@ import { db } from "../db";
 import type { GameScoreRecord } from "../db";
 import type { SongItem } from "../services/itunes";
 import { getSongsForCategory } from "../services/itunes";
+import { getSongYouTubeId } from "../services/youtube";
 
 export interface GameRoundQuestion {
   roundIndex: number;
   previewUrl: string;
+  youtubeId?: string;
   correctSongId: string; // Used for client/server answer checking
   choices: {
     id: string;
@@ -68,7 +70,18 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
 
       // Shuffle songs to pick questions
       const shuffled = [...songs].sort(() => 0.5 - Math.random());
-      const selectedSongs = shuffled.slice(0, Math.min(roundsCount, songs.length));
+      const rawSelected = shuffled.slice(0, Math.min(roundsCount, songs.length));
+
+      // Resolve official YouTube Video IDs in parallel for 0:00 - 0:10 true intro playback
+      const selectedSongs = await Promise.all(
+        rawSelected.map(async (song) => {
+          const ytId = song.youtubeId || (await getSongYouTubeId(song.id, song.title, song.artist));
+          return {
+            ...song,
+            youtubeId: ytId || undefined
+          };
+        })
+      );
 
       const rounds: GameRoundQuestion[] = selectedSongs.map((correctSong, index) => {
         // Pick 3 distractors from the rest of the songs with distinct titles
@@ -107,6 +120,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
         return {
           roundIndex: index + 1,
           previewUrl: correctSong.previewUrl,
+          youtubeId: correctSong.youtubeId,
           correctSongId: correctSong.id,
           choices
         };

@@ -289,7 +289,7 @@ export const db = {
   async getRandomSongs(category: CategoryType, count: number = 30): Promise<any[]> {
     try {
       const songs = await prisma.$queryRaw<any[]>`
-        SELECT id, title, artist, category, "previewUrl", "artworkUrl", "releaseYear", popularity
+        SELECT id, title, artist, category, "previewUrl", "artworkUrl", "releaseYear", popularity, "youtubeId"
         FROM "Song"
         WHERE category = ${category}::"CategoryType"
         ORDER BY RANDOM()
