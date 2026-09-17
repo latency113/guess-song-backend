@@ -72,6 +72,19 @@ function escapeRegExp(str: string): string {
 export function isGenuineThaiSong(title: string, artist: string): boolean {
   if (!title || !artist) return false;
 
+  const lowerArtist = artist.toLowerCase();
+  const lowerTitle = title.toLowerCase();
+
+  // Reject compilation / pseudo-artists like SPICYDISC LIGHT, Boxx Music, etc.
+  if (
+    lowerArtist.includes("spicydisc light") ||
+    lowerTitle.includes("spicydisc light") ||
+    lowerArtist === "boxx music" ||
+    lowerArtist.includes("what the duck all artist")
+  ) {
+    return false;
+  }
+
   // 1. Thai Unicode Range (Thai alphabet & vowels)
   if (/[\u0E00-\u0E7F]/.test(title) || /[\u0E00-\u0E7F]/.test(artist)) {
     return true;

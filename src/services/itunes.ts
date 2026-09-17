@@ -24,7 +24,7 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "ALLY เพลง", "Sarah Salola", "Safeplanet", "วง Dept", "Mirrr",
     "Loserpop", "PURPEECH", "วง No One Else", "วง MEAN", "Whal & Dolph",
     "Landokmai", "Television off", "GMM Grammy", "What The Duck Music", "Smallroom thai",
-    "Spicydisc thai", "BOXX MUSIC", "เพลงไทยฮิต", "นนท์ ธนนท์", "เบิร์ด ธงไชย"
+    "The Parkinson", "BOXX MUSIC", "เพลงไทยฮิต", "นนท์ ธนนท์", "เบิร์ด ธงไชย"
   ],
   THAI_INDIE_ROCK: [
     "Bodyslam", "Big Ass", "Slot Machine", "Potato", "Labanoon", 
@@ -183,12 +183,13 @@ export async function fetchSongsByQuery(
         const lowerTitle = item.trackName.toLowerCase();
         const lowerArtist = item.artistName.toLowerCase();
 
-        // Filter out karaoke, tribute, or instrumental tracks
+        // Filter out karaoke, tribute, instrumental tracks or compilation artists
         if (
           lowerTitle.includes("karaoke") ||
           lowerArtist.includes("tribute") ||
           lowerTitle.includes("backing track") ||
-          lowerTitle.includes("cover version")
+          lowerTitle.includes("cover version") ||
+          lowerArtist.includes("spicydisc light")
         ) {
           continue;
         }
