@@ -330,16 +330,18 @@ export const db = {
     }
   },
 
-  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 15): Promise<any[]> {
+  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 40): Promise<any[]> {
     try {
+      const targetCount = Math.max(artistsCount, 40);
       const songs = await prisma.$queryRaw<any[]>`
         WITH eligible_artists AS (
           SELECT artist
           FROM "Song"
           WHERE category = ${category}::"CategoryType"
           GROUP BY artist
+          HAVING COUNT(DISTINCT title) >= 4
           ORDER BY RANDOM()
-          LIMIT ${artistsCount}
+          LIMIT ${targetCount}
         )
         SELECT s.id, s.title, s.artist, s.category, s."previewUrl", s."artworkUrl", s."releaseYear", s."youtubeId"
         FROM "Song" s

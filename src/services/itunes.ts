@@ -23,8 +23,11 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "ATLAS", "BUS because of you i shine", "Pixxie", "NuNew", "Zee Pruk",
     "ALLY เพลง", "Sarah Salola", "Safeplanet", "วง Dept", "Mirrr",
     "Loserpop", "PURPEECH", "วง No One Else", "วง MEAN", "Whal & Dolph",
-    "Landokmai", "Television off", "GMM Grammy", "What The Duck Music", "Smallroom thai",
-    "The Parkinson", "BOXX MUSIC", "เพลงไทยฮิต", "นนท์ ธนนท์", "เบิร์ด ธงไชย"
+    "Landokmai", "Television off", "The Parkinson", "นนท์ ธนนท์", "เบิร์ด ธงไชย",
+    "Lipta", "Singto Numchok", "Stamp Apiwat", "Oat Pramote", "Pop Pongkool", 
+    "Two Popetorn", "Wanyai", "Mon Monik", "Zom Marie", "Ice Sarunyu", 
+    "Da Endorphine", "Klear", "getsunova", "New Jiew", "Aof Pongsak", 
+    "Wan Thanakrit", "Only Monday", "Free Hand", "Clockwork Motionless"
   ],
   THAI_INDIE_ROCK: [
     "Bodyslam", "Big Ass", "Slot Machine", "Potato", "Labanoon", 
@@ -32,9 +35,10 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Anatomy Rabbit", "Polycat", "Department of Architecture", "Moderndog", "Palmy",
     "วง Clash", "Zeal", "RETROSPECT", "Sweet Mullet", "TaitosmitH",
     "Bomb at Track", "The Yers", "Desktop Error", "Solitude Is Bliss", "Moving and Cut",
-    "Yented", "Blackhead", "วง ฟลาย", "Sek Loso", "Rock Rider",
-    "Ebola", "Lomosonic", "วง Playground", "Musketeers", "25hours",
-    "genie records thai", "Bakery Music thai", "Smallroom rock"
+    "Yented", "Blackhead", "Sek Loso", "Rock Rider", "Ebola", "Lomosonic", 
+    "วง Playground", "Musketeers", "25hours", "Hangman", "AB Normal", 
+    "Kala", "Flure", "Pause", "Hugo", "Carabao", "Pongsit Kampee",
+    "Micro", "Nuvo", "Asanee Wasan", "Fly", "Smile Buffalo", "Y Not 7"
   ],
   GLOBAL_POP: [
     "Taylor Swift", "Ed Sheeran", "Bruno Mars", "The Weeknd", "Dua Lipa", 
@@ -43,7 +47,11 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Sabrina Carpenter", "Lady Gaga", "Rihanna", "Shawn Mendes", "Charlie Puth",
     "Sam Smith", "Beyonce", "Doja Cat", "SZA", "Benson Boone",
     "Chappell Roan", "Miley Cyrus", "Sia", "Selena Gomez", "Camila Cabello",
-    "Justin Timberlake", "One Direction", "Imagine Dragons", "Jonas Brothers"
+    "Justin Timberlake", "One Direction", "Imagine Dragons", "Jonas Brothers",
+    "Drake", "Kendrick Lamar", "Travis Scott", "Eminem", "Avicii", 
+    "Calvin Harris", "The Chainsmokers", "Marshmello", "Zedd", "Kygo", 
+    "Alan Walker", "Lauv", "Jeremy Zucker", "Conan Gray", "Troye Sivan", 
+    "Lorde", "Lana Del Rey", "Halsey", "Bebe Rexha", "Anne-Marie"
   ],
   GLOBAL_CLASSIC: [
     "Queen", "Michael Jackson", "ABBA", "The Beatles", "Bon Jovi", 
@@ -52,7 +60,11 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Nirvana", "Elton John", "Billy Joel", "Scorpions", "Aerosmith",
     "Red Hot Chili Peppers", "Radiohead", "Westlife", "Spice Girls", "Bryan Adams",
     "Phil Collins", "Stevie Wonder", "Bee Gees", "Fleetwood Mac", "AC/DC",
-    "Metallica", "The Police", "Cyndi Lauper", "George Michael", "Wham!"
+    "Metallica", "The Police", "Cyndi Lauper", "George Michael", "Wham!",
+    "Celine Dion", "Mariah Carey", "Boyz II Men", "R.E.M.", "Goo Goo Dolls", 
+    "The Cranberries", "The Corrs", "Savage Garden", "U2", "Pink Floyd", 
+    "Led Zeppelin", "The Rolling Stones", "Bob Marley", "Deep Purple", 
+    "Air Supply", "Chicago", "Toto", "Rick Astley", "a-ha", "Tears for Fears"
   ]
 };
 
