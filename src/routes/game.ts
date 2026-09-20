@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { db } from "../db";
 import type { GameScoreRecord } from "../db";
 import type { SongItem } from "../services/itunes";
-import { getSongsForCategory } from "../services/itunes";
+import { getSongsForCategory, fetchSongsByQuery } from "../services/itunes";
 import { getSongYouTubeId } from "../services/youtube";
 
 export interface GameRoundQuestion {
@@ -81,8 +81,8 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
       const validCategory = (category as SongItem["category"]) || "THAI_HITS";
       const roundsToCreate = Math.min(roundsCount, 30);
 
-      // 1. Fetch songs for distinct artists having at least 4 songs
-      let songs = await db.getArtistGroupedSongsForGame(validCategory as any, Math.max(roundsToCreate + 5, 15));
+      // 1. Fetch songs for candidate artists in this category
+      let songs = await db.getArtistGroupedSongsForGame(validCategory as any, Math.max(roundsToCreate + 5, 20));
 
       // 2. Fallback to standard song retrieval if needed
       if (!songs || songs.length < 4) {
@@ -92,6 +92,13 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
       if (!songs || songs.length < 4) {
         set.status = 500;
         return { error: "ไม่สามารถดึงข้อมูลเพลงได้เพียงพอสำหรับการเล่นเกม" };
+      }
+
+      // Pre-load a fallback pool of general category songs in case an artist has fewer than 4 songs
+      let fallbackPool: SongItem[] = songs;
+      if (fallbackPool.length < 20) {
+        const extraFallback = await db.getRandomSongs(validCategory as any, 30);
+        fallbackPool = [...fallbackPool, ...extraFallback];
       }
 
       // Group songs by primary artist (case-insensitive)
@@ -105,7 +112,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
         artistGroups.get(prime)!.push(s);
       }
 
-      // Deduplicate songs per artist to ensure distinct titles
+      // Deduplicate songs per artist to ensure distinct titles, and dynamically enrich if < 4 songs
       const eligibleArtists = new Map<string, SongItem[]>();
       for (const [artistKey, songList] of artistGroups.entries()) {
         const seenTitles = new Set<string>();
@@ -117,7 +124,29 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
             uniqueSongs.push(s);
           }
         }
-        if (uniqueSongs.length >= 4) {
+
+        // If artist has fewer than 4 songs, try dynamically fetching from iTunes Search API
+        if (uniqueSongs.length < 4) {
+          try {
+            const country = validCategory.startsWith("THAI") ? "th" : "us";
+            const moreSongs = await fetchSongsByQuery(artistKey, validCategory, country, 12);
+            if (moreSongs.length > 0) {
+              // Asynchronously save to DB for future games
+              db.saveSongs(moreSongs).catch((e) => console.error("Auto-save enriched songs error:", e));
+              for (const ms of moreSongs) {
+                const norm = normalizeTitle(ms.title);
+                if (norm.length > 0 && !seenTitles.has(norm)) {
+                  seenTitles.add(norm);
+                  uniqueSongs.push(ms);
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore search errors and proceed with available songs
+          }
+        }
+
+        if (uniqueSongs.length > 0) {
           eligibleArtists.set(artistKey, uniqueSongs);
         }
       }
@@ -128,7 +157,6 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
         artistName: string;
       }[] = [];
 
-      // If we have artists with >= 4 distinct songs, pick exclusively from them!
       if (eligibleArtists.size > 0) {
         const shuffledArtistKeys = Array.from(eligibleArtists.keys()).sort(() => 0.5 - Math.random());
         const usedCorrectSongIds = new Set<string>();
@@ -137,7 +165,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           const artistKey = shuffledArtistKeys[i % shuffledArtistKeys.length];
           if (!artistKey) continue;
           const artistSongPool = eligibleArtists.get(artistKey);
-          if (!artistSongPool || artistSongPool.length < 4) continue;
+          if (!artistSongPool || artistSongPool.length === 0) continue;
 
           // Pick an unused correct song from this artist
           const availableCorrect = artistSongPool.filter((s) => !usedCorrectSongIds.has(s.id));
@@ -148,13 +176,30 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
 
           usedCorrectSongIds.add(correctSong.id);
 
-          // Pick 3 distractors from the same artist's remaining songs
+          // Pick up to 3 distractors from the same artist's remaining songs
           const normCorrect = normalizeTitle(correctSong.title);
           const remainingSameArtist = artistSongPool
             .filter((s) => s.id !== correctSong.id && normalizeTitle(s.title) !== normCorrect)
             .sort(() => 0.5 - Math.random());
 
           const distractors = remainingSameArtist.slice(0, 3);
+
+          // If this artist has fewer than 4 songs in total, fill remaining distractors from other category songs
+          if (distractors.length < 3) {
+            const needed = 3 - distractors.length;
+            const chosenDistractorIds = new Set(distractors.map((d) => d.id));
+            const otherFillers = fallbackPool
+              .filter(
+                (s) =>
+                  s.id !== correctSong.id &&
+                  !chosenDistractorIds.has(s.id) &&
+                  extractPrimaryArtist(s.artist).toLowerCase() !== artistKey &&
+                  normalizeTitle(s.title) !== normCorrect
+              )
+              .sort(() => 0.5 - Math.random())
+              .slice(0, needed);
+            distractors.push(...otherFillers);
+          }
 
           rawRoundsData.push({
             correctSong,
@@ -163,7 +208,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           });
         }
       } else {
-        // Fallback: Pick distractors from the category if no single artist has 4 songs
+        // Ultimate fallback: Pick distractors from the category if no artist is found
         const shuffled = [...songs].sort(() => 0.5 - Math.random());
         const rawSelected = shuffled.slice(0, roundsToCreate);
         for (const correctSong of rawSelected) {

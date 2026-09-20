@@ -330,7 +330,7 @@ export const db = {
     }
   },
 
-  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 10): Promise<any[]> {
+  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 15): Promise<any[]> {
     try {
       const songs = await prisma.$queryRaw<any[]>`
         WITH eligible_artists AS (
@@ -338,7 +338,6 @@ export const db = {
           FROM "Song"
           WHERE category = ${category}::"CategoryType"
           GROUP BY artist
-          HAVING COUNT(DISTINCT title) >= 4
           ORDER BY RANDOM()
           LIMIT ${artistsCount}
         )
