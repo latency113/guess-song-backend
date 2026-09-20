@@ -125,7 +125,35 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           }
         }
 
-        // If artist has fewer than 4 songs, try dynamically fetching from iTunes Search API
+        // 1. If artist has fewer than 4 songs, check if DB has other tracks matching this artist (e.g. collabs or other categories)
+        if (uniqueSongs.length < 4 && artistKey.length >= 2) {
+          try {
+            const dbExtras = await db.prisma.song.findMany({
+              where: {
+                artist: { contains: artistKey, mode: "insensitive" }
+              },
+              take: 20
+            });
+            for (const s of dbExtras) {
+              const norm = normalizeTitle(s.title);
+              if (norm.length > 0 && !seenTitles.has(norm)) {
+                seenTitles.add(norm);
+                uniqueSongs.push({
+                  id: s.id,
+                  title: s.title,
+                  artist: s.artist,
+                  category: s.category as any,
+                  previewUrl: s.previewUrl,
+                  artworkUrl: s.artworkUrl || undefined,
+                  releaseYear: s.releaseYear || undefined,
+                  youtubeId: s.youtubeId || undefined
+                });
+              }
+            }
+          } catch {}
+        }
+
+        // 2. If still fewer than 4 songs, dynamically fetch from iTunes / Deezer API
         if (uniqueSongs.length < 4) {
           try {
             const country = validCategory.startsWith("THAI") ? "th" : "us";

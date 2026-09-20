@@ -54,6 +54,16 @@ export const KNOWN_THAI_KEYWORDS: string[] = [
   "tum warawut", "gam wichayanee", "ploychompoo", "jannine weigel", 
   "oat pramote", "pop pongkool", "singharat", "j jetrin", "christina aguilar", 
   "tata young", "mos patiparn", "uht", "raptor", "tik shiro",
+  "zom marie", "slapkiss", "ayla's", "aylas", "jetset'er", "jetseter", "rose sirintip",
+  "tor+ saksit", "tor saksit", "nap a lean", "napalean", "autta", "bow maylada",
+  "calories blah blah", "death of a salesman", "meentra intira", "p-hot", "pee clock",
+  "win siriwong", "วง ฟลาย", "fly", "ปลานิลเต็มบ้าน", "เรนิษรา", "sudkhate",
+  "bonnie pattraphus", "joong archen", "moor", "yes'sir days", "yessir days",
+  "k6y", "rifle", "1st", "7days crazy", "blvckheart", "boy sompob", "cincin irada",
+  "dane amar", "first anuwat", "gavin:d", "gawin", "goodmood", "jayrun", "khaotung",
+  "matcha", "mikesickflow", "nineilx", "sea.", "somkiat", "spoonfulz", "temi", "tigger",
+  "the darkest romance", "the jukks", "tor wasan", "wanyai", "yong armchair", "z9",
+  "zentyarb", "bonnadol", "chokla999", "เต๋า ภรัณวัฒน์", "แด๊ก rock rider", "แม็กก้า",
   "gmm grammy", "what the duck", "smallroom", "spicydisc", "boxx music", "t-pop"
 ];
 
