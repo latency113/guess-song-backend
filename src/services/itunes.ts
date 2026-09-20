@@ -56,6 +56,35 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
   ]
 };
 
+// Known metadata errors in iTunes Catalog (e.g. GMM Grammy miscredited The First Album to Three Man Down)
+const KNOWN_METADATA_CORRECTIONS: Record<string, string> = {
+  "ไกลแค่ไหน คือ ใกล้": "getsunova",
+  "คำถามซึ่งไร้คนตอบ": "getsunova",
+  "ความเงียบดังที่สุด": "getsunova",
+  "คนไม่จำเป็น": "getsunova",
+  "แตกต่างเหมือนกัน": "getsunova",
+  "อยู่ตรงนี้ นานกว่านี้": "getsunova",
+  "stay": "getsunova",
+  "พระเอกจำลอง": "getsunova",
+  "โดดเดี่ยวด้วยกัน": "getsunova",
+  "เหตุผลที่ไม่มีเหตุผล": "getsunova",
+  "พัง..(ลำพัง)": "getsunova",
+  "กาลครั้งหนึ่ง ตลอดกาล": "getsunova",
+  "สิ่งที่ตามหา": "getsunova",
+  "ความมืดสีขาว": "getsunova",
+  "ถามใจ": "getsunova",
+};
+
+export function correctArtistMetadata(title: string, artist: string): string {
+  const norm = title.toLowerCase().trim();
+  for (const [key, correctArtist] of Object.entries(KNOWN_METADATA_CORRECTIONS)) {
+    if (norm.includes(key.toLowerCase())) {
+      return correctArtist;
+    }
+  }
+  return artist;
+}
+
 // Clean and filter song title to remove unwanted noise
 function cleanTitle(rawTitle: string): string {
   return rawTitle
@@ -131,7 +160,7 @@ export async function fetchAppleTopSongsRSS(
         songs.push({
           id: `apple_${id}`,
           title: cleanTitle(title),
-          artist,
+          artist: correctArtistMetadata(title, artist),
           category,
           previewUrl,
           artworkUrl,
@@ -197,7 +226,7 @@ export async function fetchSongsByQuery(
               songs.push({
                 id: String(item.trackId),
                 title: cleanTitle(item.trackName),
-                artist: item.artistName,
+                artist: correctArtistMetadata(item.trackName, item.artistName),
                 category,
                 previewUrl: item.previewUrl,
                 artworkUrl: item.artworkUrl100 ? item.artworkUrl100.replace(/\/\d+x\d+bb/, "/600x600bb") : undefined,

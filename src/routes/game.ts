@@ -135,6 +135,8 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
               take: 20
             });
             for (const s of dbExtras) {
+              const primary = extractPrimaryArtist(s.artist).toLowerCase();
+              if (primary !== artistKey) continue;
               const norm = normalizeTitle(s.title);
               if (norm.length > 0 && !seenTitles.has(norm)) {
                 seenTitles.add(norm);
@@ -153,7 +155,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           } catch {}
         }
 
-        // 2. If still fewer than 4 songs, dynamically fetch from iTunes / Deezer API
+        // 2. If still fewer than 4 songs, dynamically fetch from iTunes API
         if (uniqueSongs.length < 4) {
           try {
             const country = validCategory.startsWith("THAI") ? "th" : "us";
@@ -162,6 +164,8 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
               // Asynchronously save to DB for future games
               db.saveSongs(moreSongs).catch((e) => console.error("Auto-save enriched songs error:", e));
               for (const ms of moreSongs) {
+                const msPrimary = extractPrimaryArtist(ms.artist).toLowerCase();
+                if (msPrimary !== artistKey) continue;
                 const norm = normalizeTitle(ms.title);
                 if (norm.length > 0 && !seenTitles.has(norm)) {
                   seenTitles.add(norm);
