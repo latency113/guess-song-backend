@@ -208,49 +208,6 @@ export async function fetchSongsByQuery(
         }
       } catch {}
     }
-    // If iTunes API failed, was blocked (403/429), or returned no results, fallback seamlessly to Deezer API
-    if (songs.length === 0) {
-      try {
-        const deezerUrl = `https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=${limit}`;
-        const dzRes = await fetch(deezerUrl, { headers: { "User-Agent": "MusicQuizApp/1.0" } });
-        if (dzRes.ok) {
-          const dzData = (await dzRes.json()) as { data?: any[] };
-          if (Array.isArray(dzData.data)) {
-            for (const item of dzData.data) {
-              if (item.preview && item.title && item.artist?.name) {
-                if (category.startsWith("THAI") && !isGenuineThaiSong(item.title, item.artist.name)) {
-                  continue;
-                }
-                const lowerTitle = item.title.toLowerCase();
-                const lowerArtist = item.artist.name.toLowerCase();
-                if (
-                  lowerTitle.includes("karaoke") ||
-                  lowerArtist.includes("tribute") ||
-                  lowerTitle.includes("backing track") ||
-                  lowerTitle.includes("cover version") ||
-                  lowerArtist.includes("spicydisc light")
-                ) {
-                  continue;
-                }
-
-                songs.push({
-                  id: `dz_${item.id}`,
-                  title: cleanTitle(item.title),
-                  artist: item.artist.name,
-                  category,
-                  previewUrl: item.preview,
-                  artworkUrl: item.album?.cover_xl || item.album?.cover_big || item.album?.cover_medium,
-                  releaseYear: undefined
-                });
-              }
-            }
-          }
-        }
-      } catch (dzErr) {
-        console.warn(`Deezer fallback search error for query ${query}:`, dzErr);
-      }
-    }
-
     return songs;
   } catch (error) {
     console.error(`Error fetching iTunes for query ${query}:`, error);

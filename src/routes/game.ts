@@ -21,7 +21,7 @@ export interface GameRoundQuestion {
 
 export function extractPrimaryArtist(artist: string): string {
   if (!artist) return "";
-  const parts = artist.split(/\s*(?:feat\.|ft\.|featuring|&|\bwith\b|\bx\b|\bX\b|และ)\s*/i);
+  const parts = artist.split(/\s*(?:feat\.|ft\.|featuring|&|\bwith\b|\bx\b|\bX\b|และ|,|\/)\s*/i);
   return parts[0]?.trim() || artist.trim();
 }
 
@@ -174,7 +174,9 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           }
         }
 
-        if (uniqueSongs.length > 0) {
+        // Only consider an artist eligible if they have AT LEAST 4 distinct songs
+        // This ensures all 4 choices are guaranteed to be from this same artist!
+        if (uniqueSongs.length >= 4) {
           eligibleArtists.set(artistKey, uniqueSongs);
         }
       }
@@ -182,7 +184,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
       const rawRoundsData: {
         correctSong: SongItem;
         distractors: SongItem[];
-        artistName: string;
+        artistName?: string;
       }[] = [];
 
       if (eligibleArtists.size > 0) {
@@ -193,7 +195,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           const artistKey = shuffledArtistKeys[i % shuffledArtistKeys.length];
           if (!artistKey) continue;
           const artistSongPool = eligibleArtists.get(artistKey);
-          if (!artistSongPool || artistSongPool.length === 0) continue;
+          if (!artistSongPool || artistSongPool.length < 4) continue;
 
           // Pick an unused correct song from this artist
           const availableCorrect = artistSongPool.filter((s) => !usedCorrectSongIds.has(s.id));
@@ -204,7 +206,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
 
           usedCorrectSongIds.add(correctSong.id);
 
-          // Pick up to 3 distractors from the same artist's remaining songs
+          // Pick 3 distractors from the same artist's remaining songs
           const normCorrect = normalizeTitle(correctSong.title);
           const remainingSameArtist = artistSongPool
             .filter((s) => s.id !== correctSong.id && normalizeTitle(s.title) !== normCorrect)
@@ -212,8 +214,10 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
 
           const distractors = remainingSameArtist.slice(0, 3);
 
-          // If this artist has fewer than 4 songs in total, fill remaining distractors from other category songs
+          // If somehow fewer than 3 distractors (safety check), backfill from other songs
+          let isSameArtistAll = true;
           if (distractors.length < 3) {
+            isSameArtistAll = false;
             const needed = 3 - distractors.length;
             const chosenDistractorIds = new Set(distractors.map((d) => d.id));
             const otherFillers = fallbackPool
@@ -232,11 +236,11 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           rawRoundsData.push({
             correctSong,
             distractors,
-            artistName: extractPrimaryArtist(correctSong.artist)
+            artistName: isSameArtistAll ? extractPrimaryArtist(correctSong.artist) : undefined
           });
         }
       } else {
-        // Ultimate fallback: Pick distractors from the category if no artist is found
+        // Fallback: Pick distractors from the category without revealing artist
         const shuffled = [...songs].sort(() => 0.5 - Math.random());
         const rawSelected = shuffled.slice(0, roundsToCreate);
         for (const correctSong of rawSelected) {
@@ -247,7 +251,7 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
           rawRoundsData.push({
             correctSong,
             distractors,
-            artistName: extractPrimaryArtist(correctSong.artist)
+            artistName: undefined
           });
         }
       }
