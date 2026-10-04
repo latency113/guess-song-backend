@@ -9,12 +9,12 @@
 export const KNOWN_THAI_KEYWORDS: string[] = [
   // Modern T-Pop & Pop Artists
   "three man down", "tilly birds", "bowkylion", "nont tanont", "jeff satur", 
-  "cocktail", "tattoo colour", "ink waruntorn", "billkin", "pp krit", 
+  "cocktail", "ohm cocktail", "tattoo colour", "ink waruntorn", "billkin", "pp krit", 
   "violette wautier", "urboytj", "urboy tj", "f.hero", "f-hero", "f hero", 
   "milli", "the toys", "paper planes", "fellow fellow", "serious bacon", 
   "proxie", "4eve", "atlas", "bus because of you i shine", "bus", "pixxie", 
   "nunew", "zee pruk", "ally", "sarah salola", "safeplanet", "dept", 
-  "mirrr", "loserpop", "purpeech", "no one else", "mean", "whal & dolph", 
+  "mirrr", "loserpop", "purpeech", "no one else", "mean", "mean band", "whal & dolph", 
   "landokmai", "television off", "perses", "dice", "alala", "bamm", 
   "qrra", "pretzelle", "mxfruit", "viis", "empress", "lykn", "badmixy",
 
@@ -30,12 +30,12 @@ export const KNOWN_THAI_KEYWORDS: string[] = [
   "greasy cafe", "t-bone", "poy portrait", "the mousses", "triumphs kingdom",
 
   // Thai Rock & Metal
-  "bodyslam", "big ass", "slot machine", "potato", "labanoon", 
+  "bodyslam", "big ass", "slot machine", "potato", "pup potato", "labanoon", 
   "paradox", "silly fools", "loso", "sek loso", "palmy", "clash", 
-  "zeal", "retrospect", "sweet mullet", "taitosmith", "bomb at track", 
-  "blackhead", "fly", "rock rider", "ebola", "lomosonic", "playground", 
-  "musketeers", "25hours", "asanee wasan", "micro", "nuvo", "hin lek fai", 
-  "the sun", "smf", "the must", "carabao", "pongsit", "maleehuana",
+  "zeal", "pex zeal", "retrospect", "sweet mullet", "tao sweet mullet", "taitosmith", "bomb at track", 
+  "blackhead", "วง ฟลาย", "rock rider", "ebola", "lomosonic", "playground", 
+  "musketeers", "25 hours", "25hours", "asanee wasan", "micro", "nuvo", "hin lek fai", 
+  "the sun", "smf", "the must", "carabao", "pongsit", "maleehuana", "kwang abnormal",
 
   // Thai Hip-Hop, Rap & R&B
   "youngohm", "1mill", "saran", "sprite", "meyou", "pun", "d gerrard", 
@@ -57,35 +57,59 @@ export const KNOWN_THAI_KEYWORDS: string[] = [
   "zom marie", "slapkiss", "ayla's", "aylas", "jetset'er", "jetseter", "rose sirintip",
   "tor+ saksit", "tor saksit", "nap a lean", "napalean", "autta", "bow maylada",
   "calories blah blah", "death of a salesman", "meentra intira", "p-hot", "pee clock",
-  "win siriwong", "วง ฟลาย", "fly", "ปลานิลเต็มบ้าน", "เรนิษรา", "sudkhate",
+  "win siriwong", "ปลานิลเต็มบ้าน", "เรนิษรา", "sudkhate",
   "bonnie pattraphus", "joong archen", "moor", "yes'sir days", "yessir days",
   "k6y", "rifle", "1st", "7days crazy", "blvckheart", "boy sompob", "cincin irada",
-  "dane amar", "first anuwat", "gavin:d", "gawin", "goodmood", "jayrun", "khaotung",
-  "matcha", "mikesickflow", "nineilx", "sea.", "somkiat", "spoonfulz", "temi", "tigger",
+  "first anuwat", "gavin:d", "gawin", "goodmood", "jayrun", "khaotung",
+  "matcha", "mikesickflow", "nineilx", "somkiat", "spoonfulz", "temi", "tigger",
   "the darkest romance", "the jukks", "tor wasan", "wanyai", "yong armchair", "z9",
   "zentyarb", "bonnadol", "chokla999", "เต๋า ภรัณวัฒน์", "แด๊ก rock rider", "แม็กก้า",
-  "gmm grammy", "what the duck", "smallroom", "spicydisc", "boxx music", "t-pop"
+  "gmm grammy", "what the duck", "smallroom", "spicydisc", "t-pop"
 ];
 
-function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+const KNOWN_THAI_SET = new Set(KNOWN_THAI_KEYWORDS.map((k) => k.toLowerCase().trim()));
+
+// Explicit list of known foreign artists/track types that must never enter Thai categories
+const BLOCKED_FOREIGN_ARTISTS = [
+  "montefiori cocktail",
+  "cocktail bananas",
+  "dane amar"
+];
+
+const BLOCKED_TRACK_SUBSTRINGS = [
+  "epic version",
+  "baywatch",
+  "ducktales",
+  "thundercats",
+  "knight rider",
+  "inspector gadget"
+];
 
 /**
  * Validates if a song is authentically Thai.
  * 
  * Rules:
- * 1. If either title or artist contains Thai characters (U+0E00 to U+0E7F), return true.
- * 2. If title or artist contains CJK characters (Chinese, Japanese, Korean) and no Thai characters, return false.
- * 3. If written in Latin/English, the artist must match a known Thai artist/label keyword (using word boundaries).
+ * 1. Reject blocked foreign artists and compilation junk.
+ * 2. If either title or artist contains Thai characters (U+0E00 to U+0E7F), return true.
+ * 3. If title or artist contains CJK characters (Chinese, Japanese, Korean) and no Thai characters, return false.
+ * 4. If written in Latin/English, verify that at least one primary or featured collaborator matches known Thai artists.
  */
 export function isGenuineThaiSong(title: string, artist: string): boolean {
   if (!title || !artist) return false;
 
-  const lowerArtist = artist.toLowerCase();
-  const lowerTitle = title.toLowerCase();
+  const lowerArtist = artist.toLowerCase().trim();
+  const lowerTitle = title.toLowerCase().trim();
 
-  // Reject compilation / pseudo-artists like SPICYDISC LIGHT, Boxx Music, etc.
+  // 1. Explicit foreign artist rejection
+  for (const blocked of BLOCKED_FOREIGN_ARTISTS) {
+    if (lowerArtist.includes(blocked)) return false;
+  }
+
+  // Reject foreign theme covers / compilation artists
+  for (const theme of BLOCKED_TRACK_SUBSTRINGS) {
+    if (lowerTitle.includes(theme)) return false;
+  }
+
   if (
     lowerArtist.includes("spicydisc light") ||
     lowerTitle.includes("spicydisc light") ||
@@ -95,12 +119,12 @@ export function isGenuineThaiSong(title: string, artist: string): boolean {
     return false;
   }
 
-  // 1. Thai Unicode Range (Thai alphabet & vowels)
+  // 2. Thai Unicode Range (Thai alphabet & vowels)
   if (/[\u0E00-\u0E7F]/.test(title) || /[\u0E00-\u0E7F]/.test(artist)) {
     return true;
   }
 
-  // 2. Reject East Asian characters (Chinese, Japanese, Korean) when there are no Thai characters
+  // 3. Reject East Asian characters (Chinese, Japanese, Korean) when there are no Thai characters
   if (
     /[\u4E00-\u9FFF\uAC00-\uD7AF\u3040-\u30FF]/.test(title) || 
     /[\u4E00-\u9FFF\uAC00-\uD7AF\u3040-\u30FF]/.test(artist)
@@ -108,11 +132,22 @@ export function isGenuineThaiSong(title: string, artist: string): boolean {
     return false;
   }
 
-  // 3. For Latin/English titles & artists, verify against known Thai artist names
-  const cleanArtist = artist.trim();
-  return KNOWN_THAI_KEYWORDS.some((kw) => {
-    const escaped = escapeRegExp(kw);
-    const regex = new RegExp(`\\b${escaped}\\b`, "i");
-    return regex.test(cleanArtist);
-  });
+  // 4. For Latin/English titles & artists, split into collaborators and verify authentic Thai artist
+  const collabs = artist
+    .split(/\s*(?:feat\.|ft\.|featuring|&|\bwith\b|\bx\b|\bX\b|และ|,|\/)\s*/i)
+    .map((s) => s.trim().toLowerCase().replace(/^วง\s+/i, ""))
+    .filter(Boolean);
+
+  for (const c of collabs) {
+    if (KNOWN_THAI_SET.has(c)) {
+      return true;
+    }
+    for (const kw of KNOWN_THAI_KEYWORDS) {
+      if (kw.length >= 4 && (c === kw || c.startsWith(kw + " ") || c.endsWith(" " + kw))) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

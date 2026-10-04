@@ -330,23 +330,28 @@ export const db = {
     }
   },
 
-  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 40): Promise<any[]> {
+  async getArtistGroupedSongsForGame(category: CategoryType, artistsCount: number = 60): Promise<any[]> {
     try {
-      const targetCount = Math.max(artistsCount, 40);
+      const targetCount = Math.max(artistsCount, 60);
       const songs = await prisma.$queryRaw<any[]>`
-        WITH eligible_artists AS (
-          SELECT artist
+        WITH parsed AS (
+          SELECT 
+            id, title, artist, category, "previewUrl", "artworkUrl", "releaseYear", "youtubeId",
+            LOWER(TRIM(REGEXP_REPLACE(artist, E'\\s*(feat\\.|ft\\.|featuring|&|\\bwith\\b|\\bx\\b|\\bX\\b|และ|,|/).*$', '', 'i'))) as primary_artist
           FROM "Song"
           WHERE category = ${category}::"CategoryType"
-          GROUP BY artist
+        ),
+        eligible AS (
+          SELECT primary_artist
+          FROM parsed
+          GROUP BY primary_artist
           HAVING COUNT(DISTINCT title) >= 4
           ORDER BY RANDOM()
           LIMIT ${targetCount}
         )
-        SELECT s.id, s.title, s.artist, s.category, s."previewUrl", s."artworkUrl", s."releaseYear", s."youtubeId"
-        FROM "Song" s
-        JOIN eligible_artists ea ON s.artist = ea.artist
-        WHERE s.category = ${category}::"CategoryType"
+        SELECT p.id, p.title, p.artist, p.category, p."previewUrl", p."artworkUrl", p."releaseYear", p."youtubeId"
+        FROM parsed p
+        JOIN eligible e ON p.primary_artist = e.primary_artist
       `;
       return songs;
     } catch (e) {

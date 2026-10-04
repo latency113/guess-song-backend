@@ -14,38 +14,44 @@ export interface SongItem {
 }
 
 // Built-in curated search queries for diverse & popular songs (Artists, Labels, Eras)
+// Built-in curated search queries for diverse & popular songs (Artists, Labels, Eras)
 export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
   THAI_HITS: [
     "Three Man Down", "Tilly Birds", "Bowkylion", "NONT TANONT", "Jeff Satur", 
     "Cocktail", "Tattoo Colour", "Ink Waruntorn", "Billkin", "PP Krit", 
     "Violette Wautier", "URBOYTJ", "F.HERO", "MILLI", "THE TOYS",
-    "วง Paper Planes", "Fellow Fellow", "Serious Bacon", "Proxie", "4EVE",
-    "ATLAS", "BUS because of you i shine", "Pixxie", "NuNew", "Zee Pruk",
-    "ALLY เพลง", "Sarah Salola", "Safeplanet", "วง Dept", "Mirrr",
-    "Loserpop", "PURPEECH", "วง No One Else", "วง MEAN", "Whal & Dolph",
+    "Paper Planes", "Fellow Fellow", "Serious Bacon", "Proxie", "4EVE",
+    "ATLAS", "BUS", "Pixxie", "NuNew", "Zee Pruk",
+    "ALLY", "Sarah Salola", "Safeplanet", "Dept", "Mirrr",
+    "Loserpop", "PURPEECH", "No One Else", "MEAN", "Whal & Dolph",
     "Landokmai", "Television off", "The Parkinson", "นนท์ ธนนท์", "เบิร์ด ธงไชย",
-    "Lipta", "Singto Numchok", "Stamp Apiwat", "Oat Pramote", "Pop Pongkool", 
+    "Lipta", "Singto Numchok", "Stamp", "Oat Pramote", "Pop Pongkool", 
     "Two Popetorn", "Wanyai", "Mon Monik", "Zom Marie", "Ice Sarunyu", 
     "Da Endorphine", "Klear", "getsunova", "New Jiew", "Aof Pongsak", 
-    "Wan Thanakrit", "Only Monday", "Free Hand", "Clockwork Motionless"
+    "Wan Thanakrit", "Only Monday", "FREEHAND", "Clockwork Motionless",
+    "YOUNGOHM", "PUN", "D GERRARD", "LAZYLOXY", "SPRITE", "MEYOU",
+    "Room 39", "Palmy", "Potato", "Bodyslam", "LYKN", "PERSES", "แสตมป์",
+    "นิว จิ๋ว", "อ๊อฟ ปองศักดิ์", "ไอซ์ ศรัณยู", "ว่าน ธนกฤต", "โจอี้ ภูวศิษฐ์"
   ],
   THAI_INDIE_ROCK: [
     "Bodyslam", "Big Ass", "Slot Machine", "Potato", "Labanoon", 
-    "วง Paradox", "Silly Fools", "Loso", "Scrubb", "Safeplanet", 
+    "Paradox", "Silly Fools", "Loso", "Scrubb", "Safeplanet", 
     "Anatomy Rabbit", "Polycat", "Department of Architecture", "Moderndog", "Palmy",
-    "วง Clash", "Zeal", "RETROSPECT", "Sweet Mullet", "TaitosmitH",
+    "Clash", "Zeal", "RETROSPECT", "Sweet Mullet", "TaitosmitH",
     "Bomb at Track", "The Yers", "Desktop Error", "Solitude Is Bliss", "Moving and Cut",
     "Yented", "Blackhead", "Sek Loso", "Rock Rider", "Ebola", "Lomosonic", 
-    "วง Playground", "Musketeers", "25hours", "Hangman", "AB Normal", 
-    "Kala", "Flure", "Pause", "Hugo", "Carabao", "Pongsit Kampee",
-    "Micro", "Nuvo", "Asanee Wasan", "Fly", "Smile Buffalo", "Y Not 7"
+    "Playground", "Musketeers", "25 hours", "Hangman", "AB Normal", 
+    "KALA", "Flure", "Pause", "Hugo", "Carabao", "Pongsit Kampee",
+    "พงษ์สิทธิ์ คำภีร์", "คาราบาว", "ไมโคร", "นูโว", "อัสนี & วสันต์", 
+    "วง ฟลาย", "สไมล์ บัฟฟาโล่", "Y Not 7", "หิน เหล็ก ไฟ", "Yes'sir days", 
+    "The Mousses", "Slur", "Somkiat", "Freehand", "Dept", "Whal & Dolph"
   ],
   GLOBAL_POP: [
     "Taylor Swift", "Ed Sheeran", "Bruno Mars", "The Weeknd", "Dua Lipa", 
     "Billie Eilish", "Ariana Grande", "Justin Bieber", "Harry Styles", "Olivia Rodrigo",
     "Post Malone", "Katy Perry", "Coldplay", "Maroon 5", "Adele",
     "Sabrina Carpenter", "Lady Gaga", "Rihanna", "Shawn Mendes", "Charlie Puth",
-    "Sam Smith", "Beyonce", "Doja Cat", "SZA", "Benson Boone",
+    "Sam Smith", "Beyoncé", "Doja Cat", "SZA", "Benson Boone",
     "Chappell Roan", "Miley Cyrus", "Sia", "Selena Gomez", "Camila Cabello",
     "Justin Timberlake", "One Direction", "Imagine Dragons", "Jonas Brothers",
     "Drake", "Kendrick Lamar", "Travis Scott", "Eminem", "Avicii", 
@@ -55,16 +61,17 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
   ],
   GLOBAL_CLASSIC: [
     "Queen", "Michael Jackson", "ABBA", "The Beatles", "Bon Jovi", 
-    "Guns N Roses", "Eagles", "Backstreet Boys", "Britney Spears", "Avril Lavigne", 
+    "Guns N' Roses", "Eagles", "Backstreet Boys", "Britney Spears", "Avril Lavigne", 
     "Linkin Park", "Green Day", "Oasis", "Whitney Houston", "Madonna",
     "Nirvana", "Elton John", "Billy Joel", "Scorpions", "Aerosmith",
     "Red Hot Chili Peppers", "Radiohead", "Westlife", "Spice Girls", "Bryan Adams",
     "Phil Collins", "Stevie Wonder", "Bee Gees", "Fleetwood Mac", "AC/DC",
     "Metallica", "The Police", "Cyndi Lauper", "George Michael", "Wham!",
-    "Celine Dion", "Mariah Carey", "Boyz II Men", "R.E.M.", "Goo Goo Dolls", 
+    "Céline Dion", "Celine Dion", "Mariah Carey", "Boyz II Men", "R.E.M.", "Goo Goo Dolls", 
     "The Cranberries", "The Corrs", "Savage Garden", "U2", "Pink Floyd", 
-    "Led Zeppelin", "The Rolling Stones", "Bob Marley", "Deep Purple", 
-    "Air Supply", "Chicago", "Toto", "Rick Astley", "a-ha", "Tears for Fears"
+    "Led Zeppelin", "The Rolling Stones", "Bob Marley & The Wailers", "Bob Marley", "Deep Purple", 
+    "Air Supply", "Chicago", "Toto", "Rick Astley", "a-ha", "Tears for Fears",
+    "Eric Clapton", "Dire Straits", "The Carpenters"
   ]
 };
 
@@ -224,15 +231,29 @@ export async function fetchSongsByQuery(
               const lowerTitle = item.trackName.toLowerCase();
               const lowerArtist = item.artistName.toLowerCase();
 
-              // Filter out karaoke, tribute, instrumental tracks or compilation artists
+              // Filter out karaoke, tribute, instrumental tracks, compilation or spoken audio
               if (
                 lowerTitle.includes("karaoke") ||
                 lowerArtist.includes("tribute") ||
                 lowerTitle.includes("backing track") ||
                 lowerTitle.includes("cover version") ||
-                lowerArtist.includes("spicydisc light")
+                lowerArtist.includes("spicydisc light") ||
+                lowerArtist.includes("peppa pig") ||
+                lowerArtist.includes("sermon") ||
+                lowerArtist.includes("audiobook") ||
+                lowerTitle.includes("audiobook")
               ) {
                 continue;
+              }
+
+              // For Global categories, ensure the artist is actually relevant to the query
+              const normQuery = query.toLowerCase().trim();
+              if (category.startsWith("GLOBAL") && normQuery.length >= 3) {
+                const queryWords = normQuery.split(/\s+/).filter((w) => w.length >= 3);
+                const hasArtistRelation = queryWords.some((w) => lowerArtist.includes(w)) || lowerArtist.includes(normQuery);
+                if (!hasArtistRelation) {
+                  continue;
+                }
               }
 
               songs.push({

@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { db } from "../db";
 import type { GameScoreRecord } from "../db";
 import type { SongItem } from "../services/itunes";
-import { getSongsForCategory, fetchSongsByQuery } from "../services/itunes";
+import { getSongsForCategory, fetchSongsByQuery, CATEGORY_QUERIES } from "../services/itunes";
 import { getSongYouTubeId } from "../services/youtube";
 
 export interface GameRoundQuestion {
@@ -244,13 +244,52 @@ export const gameRoutes = new Elysia({ prefix: "/api/game" })
       }[] = [];
 
       if (eligibleArtists.size > 0) {
-        // Shuffle the eligible artist keys so each game has completely randomized artist pool
-        const shuffledArtistKeys = Array.from(eligibleArtists.keys()).sort(() => 0.5 - Math.random());
+        // Separate eligible artists into curated iconic artists vs general pool artists
+        const curatedKeywords = new Set(
+          (CATEGORY_QUERIES[validCategory] || []).map((q) => extractPrimaryArtist(q).toLowerCase())
+        );
+
+        const curatedEligible: string[] = [];
+        const otherEligible: string[] = [];
+
+        for (const k of eligibleArtists.keys()) {
+          if (curatedKeywords.has(k) || Array.from(curatedKeywords).some((ck) => k.includes(ck) || ck.includes(k))) {
+            curatedEligible.push(k);
+          } else {
+            otherEligible.push(k);
+          }
+        }
+
+        // Shuffle both pools
+        const shuffledCurated = [...curatedEligible].sort(() => 0.5 - Math.random());
+        const shuffledOther = [...otherEligible].sort(() => 0.5 - Math.random());
+
+        // Balance curated iconic artists (~60%) and catalog variety (~40%)
+        const selectedArtistKeys: string[] = [];
+        const targetCuratedCount = Math.min(Math.ceil(roundsToCreate * 0.6), shuffledCurated.length);
+        
+        selectedArtistKeys.push(...shuffledCurated.slice(0, targetCuratedCount));
+        for (const ok of shuffledOther) {
+          if (selectedArtistKeys.length >= roundsToCreate) break;
+          selectedArtistKeys.push(ok);
+        }
+        // If still need more, take remaining curated
+        for (const ck of shuffledCurated.slice(targetCuratedCount)) {
+          if (selectedArtistKeys.length >= roundsToCreate) break;
+          selectedArtistKeys.push(ck);
+        }
+        // Fallback to whatever is available if pool is smaller than requested rounds
+        if (selectedArtistKeys.length === 0) {
+          selectedArtistKeys.push(...Array.from(eligibleArtists.keys()));
+        }
+
+        // Shuffle selected keys so appearance order is completely randomized
+        const gameArtistKeys = selectedArtistKeys.sort(() => 0.5 - Math.random());
         const usedCorrectSongIds = new Set<string>();
 
-        // Ensure distinct artists across rounds by iterating through shuffled keys
+        // Ensure distinct artists across rounds by iterating through selected keys
         for (let i = 0; i < roundsToCreate; i++) {
-          const artistKey = shuffledArtistKeys[i % shuffledArtistKeys.length];
+          const artistKey = gameArtistKeys[i % gameArtistKeys.length];
           if (!artistKey) continue;
           const artistSongPool = eligibleArtists.get(artistKey);
           if (!artistSongPool || artistSongPool.length < 4) continue;
