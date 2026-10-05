@@ -40,7 +40,7 @@ export const KNOWN_THAI_KEYWORDS: string[] = [
   // Thai Hip-Hop, Rap & R&B
   "youngohm", "1mill", "saran", "sprite", "meyou", "pun", "d gerrard", 
   "lazyloxy", "cd guntee", "og-anic", "twopee", "southside", "daboyway", 
-  "pok mindset",
+  "pok mindset", "illslick", "ill slick", "อิลสลิก", "cornboi", "corn boy", "คอร์นบอย",
 
   // Mainstream Pop, 90s-2000s Classics & Labels
   "lipta", "stamp", "singto numchok", "getsunova", "klear", "mild", 
@@ -64,6 +64,11 @@ export const KNOWN_THAI_KEYWORDS: string[] = [
   "matcha", "mikesickflow", "nineilx", "somkiat", "spoonfulz", "temi", "tigger",
   "the darkest romance", "the jukks", "tor wasan", "wanyai", "yong armchair", "z9",
   "zentyarb", "bonnadol", "chokla999", "เต๋า ภรัณวัฒน์", "แด๊ก rock rider", "แม็กก้า",
+  "bell warisara", "zweed n' roll", "zweed n roll", "stoondio", "telex telexs",
+  "boy peacemaker", "peacemaker", "num kala", "bank preeti", "palapol",
+  "chillsing", "มนต์แคน แก่นคูน", "ไผ่ พงศธร", "ต่าย อรทัย", "ลำไย ไหทองคำ",
+  "ก้อง ห้วยไร่", "เบิ้ล ปทุมราช", "มีนตรา โมริลดา", "เขียนไขและวานิช",
+  "คณะขวัญใจ", "ไววิทย์", "จุลโหฬาร", "ดวงดาว เดียวดาย", "อภิรมย์",
   "gmm grammy", "what the duck", "smallroom", "spicydisc", "t-pop"
 ];
 

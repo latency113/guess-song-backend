@@ -31,7 +31,14 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Wan Thanakrit", "Only Monday", "FREEHAND", "Clockwork Motionless",
     "YOUNGOHM", "PUN", "D GERRARD", "LAZYLOXY", "SPRITE", "MEYOU",
     "Room 39", "Palmy", "Potato", "Bodyslam", "LYKN", "PERSES", "แสตมป์",
-    "นิว จิ๋ว", "อ๊อฟ ปองศักดิ์", "ไอซ์ ศรัณยู", "ว่าน ธนกฤต", "โจอี้ ภูวศิษฐ์"
+    "นิว จิ๋ว", "อ๊อฟ ปองศักดิ์", "ไอซ์ ศรัณยู", "ว่าน ธนกฤต", "โจอี้ ภูวศิษฐ์",
+    "ธามไท", "TIMETHAI", "Bell Warisara", "เบลล์ วริศรา", "Earth Patravee",
+    "Lula", "ลุลา", "Pango", "Chillsing", "SARAN", "1MILL", "DIAMOND MQT",
+    "OG-ANIC", "CDGuntee", "Twopee", "JAYLERR", "Ice Paris", "Boy Peacemaker",
+    "บอย พีซเมคเกอร์", "NUM KALA", "หนุ่ม กะลา", "Bank Preeti", "Palapol",
+    "พลพล", "ETC.", "วง Mild", "Season Five", "มนต์แคน แก่นคูน", "ไผ่ พงศธร",
+    "ต่าย อรทัย", "ลำไย ไหทองคำ", "ก้อง ห้วยไร่", "เบิ้ล ปทุมราช", "มีนตรา โมริลดา",
+    "ILLSLICK", "อิลสลิก"
   ],
   THAI_INDIE_ROCK: [
     "Bodyslam", "Big Ass", "Slot Machine", "Potato", "Labanoon", 
@@ -44,7 +51,12 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "KALA", "Flure", "Pause", "Hugo", "Carabao", "Pongsit Kampee",
     "พงษ์สิทธิ์ คำภีร์", "คาราบาว", "ไมโคร", "นูโว", "อัสนี & วสันต์", 
     "วง ฟลาย", "สไมล์ บัฟฟาโล่", "Y Not 7", "หิน เหล็ก ไฟ", "Yes'sir days", 
-    "The Mousses", "Slur", "Somkiat", "Freehand", "Dept", "Whal & Dolph"
+    "The Mousses", "Slur", "Somkiat", "Freehand", "Dept", "Whal & Dolph",
+    "Greasy Cafe", "กรีซซี่ คาเฟ่", "Zweed n' Roll", "Stoondio", "H 3 F",
+    "Telex Telexs", "T_047", "เขียนไขและวานิช", "คณะขวัญใจ", "ไววิทย์",
+    "จุลโหฬาร", "ดวงดาว เดียวดาย", "อภิรมย์", "The Darkest Romance", "Phum Viphurit",
+    "มาลีฮวนน่า", "Maleehuana", "คาราวาน", "The Sun", "ไฮร็อก", "เสือ ธนพล",
+    "cornboi", "คอร์นบอย"
   ],
   GLOBAL_POP: [
     "Taylor Swift", "Ed Sheeran", "Bruno Mars", "The Weeknd", "Dua Lipa", 
@@ -57,7 +69,10 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "Drake", "Kendrick Lamar", "Travis Scott", "Eminem", "Avicii", 
     "Calvin Harris", "The Chainsmokers", "Marshmello", "Zedd", "Kygo", 
     "Alan Walker", "Lauv", "Jeremy Zucker", "Conan Gray", "Troye Sivan", 
-    "Lorde", "Lana Del Rey", "Halsey", "Bebe Rexha", "Anne-Marie"
+    "Lorde", "Lana Del Rey", "Halsey", "Bebe Rexha", "Anne-Marie",
+    "Charli xcx", "Teddy Swims", "Gracie Abrams", "Tate McRae", "OneRepublic",
+    "David Guetta", "Jack Harlow", "Kanye West", "Lizzo", "Cardi B",
+    "Black Eyed Peas", "Shakira", "Pitbull", "Carly Rae Jepsen", "Twenty One Pilots"
   ],
   GLOBAL_CLASSIC: [
     "Queen", "Michael Jackson", "ABBA", "The Beatles", "Bon Jovi", 
@@ -71,7 +86,10 @@ export const CATEGORY_QUERIES: Record<SongItem["category"], string[]> = {
     "The Cranberries", "The Corrs", "Savage Garden", "U2", "Pink Floyd", 
     "Led Zeppelin", "The Rolling Stones", "Bob Marley & The Wailers", "Bob Marley", "Deep Purple", 
     "Air Supply", "Chicago", "Toto", "Rick Astley", "a-ha", "Tears for Fears",
-    "Eric Clapton", "Dire Straits", "The Carpenters"
+    "Eric Clapton", "Dire Straits", "The Carpenters",
+    "The Beach Boys", "Simon & Garfunkel", "Creedence Clearwater Revival",
+    "Elvis Presley", "The Doors", "David Bowie", "Prince", "The Cure",
+    "Duran Duran", "Van Halen", "Def Leppard", "Journey", "Kansas", "Heart"
   ]
 };
 
